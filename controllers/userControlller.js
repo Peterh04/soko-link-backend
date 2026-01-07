@@ -1,0 +1,96 @@
+import User from "../models/User.js";
+import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+
+export const getUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId, {
+      attributes: ["id", "name", "email", "role", "createdAt", "profileImage"],
+    });
+
+    if (!user) return res.status(404).json({ message: "User not found!" });
+    res.status(200).json({ message: "successfully fetching the user", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching the user", error: error });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name, email } = req.body;
+
+    const user = await User.findByPk(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found!" });
+
+    const updateFields = {};
+
+    if (name) updateFields.name = name;
+    if (email) updateFields.email = email;
+
+    if (req.file) {
+      updateFields.profileImage = `http://localhost:5001/uploads/${req.file.filename}`;
+    }
+
+    if (Object.keys(updateFields).length == 0) {
+      return res.status(400).json({ message: "No  fields provided to update" });
+    }
+    await user.update(updateFields);
+    res.status(200).json({
+      message: "Updated user successfully!",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profileImage: user.profileImage,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update user!" });
+  }
+};
+
+export const updateUserPassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const match = await bcrypt.compare(oldPassword, user.password);
+
+    if (!match) return res.status(401).json({ message: "Invalid password!" });
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Succesfully updated the password!" });
+  } catch (error) {
+    res.status(500).json({ message: "Could not update the user password" });
+  }
+};
+
+export const upgradeUserRole = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found!" });
+    user.role = "vendor";
+    user.save();
+    res
+      .status(200)
+      .json({ message: "Succesfully updated the user role to vendor" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Could  not upgrade the user role to  vendor" });
+  }
+};
