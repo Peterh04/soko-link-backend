@@ -68,7 +68,8 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(400).json({ message: "Error login in" });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
 
