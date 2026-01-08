@@ -17,7 +17,6 @@ const router = express.Router();
 router.post(
   "/vendor/createProduct",
   verifyToken,
-  verifyIsVendor,
   upload.array("images", 10),
   createProduct
 );
