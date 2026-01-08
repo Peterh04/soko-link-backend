@@ -63,7 +63,6 @@ io.on("connection", (socket) => {
 
       const roomId = getRoomId(senderId, receiverId);
 
-      // ✅ Save message (SERVER decides everything)
       const savedMessage = await Message.create({
         senderId,
         receiverId,
@@ -72,7 +71,6 @@ io.on("connection", (socket) => {
         type,
       });
 
-      // ✅ Emit DB version, not frontend version
       io.to(roomId).emit("receiveMessage", savedMessage);
     } catch (error) {
       console.error("❌ Error saving message:", error);
