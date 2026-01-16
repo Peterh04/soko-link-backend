@@ -10,6 +10,14 @@ export const createProduct = async (req, res) => {
           (file) => `http://${req.get("host")}/uploads/${file.filename}`
         )
       : [];
+
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found!" });
+
+    if (user.role !== "vendor") {
+      user.role = "vendor";
+      await user.save();
+    }
     const product = await Product.create({
       title,
       description,
