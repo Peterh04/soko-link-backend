@@ -11,12 +11,14 @@ import {
 import verifyToken from "../middleware/authMiddleware.js";
 import { verifyIsVendor } from "../middleware/vendorMiddleware.js";
 import { upload } from "../middleware/upload.js";
+import { upgradeToVendor } from "../middleware/upgradeToVendor.js";
 
 const router = express.Router();
 
 router.post(
   "/vendor/createProduct",
   verifyToken,
+  upgradeToVendor,
   verifyIsVendor,
   upload.array("images", 10),
   createProduct
