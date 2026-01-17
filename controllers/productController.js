@@ -1,22 +1,30 @@
 import { json, Op } from "sequelize";
+import cloudiary from "../config/cloudinary.js";
 import Product from "../models/Product.js";
 import User from "../models/User.js";
 
 export const createProduct = async (req, res) => {
   try {
     const { title, description, price, location } = req.body;
-    const images = req.files
-      ? req.files.map(
-          (file) => `http://${req.get("host")}/uploads/${file.filename}`
-        )
-      : [];
+
+    let images = [];
+
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const result = await cloudiary.uploader.upload(
+          `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+          { folder: "products" },
+        );
+        images.push(result.secure_url);
+      }
+    }
 
     const product = await Product.create({
       title,
       description,
       price,
       location,
-      images: images || [],
+      images: images,
       vendorId: req.user.id,
     });
     res.status(201).json({ message: "Product created successfully" });

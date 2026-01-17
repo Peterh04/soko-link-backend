@@ -34,10 +34,6 @@ app.use("/api/messages", messagesRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/mpesa", mpesaRoutes);
 
-app.post("/ping", (req, res) => {
-  console.log("PING HIT:", req.body);
-  res.json({ ok: true });
-});
 
 sequelize.sync().then(() => console.log("✅ DB connected and synced"));
 
