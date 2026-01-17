@@ -19,7 +19,7 @@ export const getMpesaToken = async (req, res) => {
 
 export const stkPush = async (req, res) => {
   const { phone, amount, invoiceId } = req.body;
-
+  console.log("CALLBACK URL USED:", process.env.MPESA_CALLBACK_URL);
   try {
     const token = await generateMpesaToken();
     const timestamp = generateTimestamp();
@@ -49,8 +49,6 @@ export const stkPush = async (req, res) => {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-
-    // ✅ UPDATE invoice instead of creating
 
     await Invoice.update(
       {
