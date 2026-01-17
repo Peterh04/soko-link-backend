@@ -10,7 +10,7 @@ export const upgradeToVendor = async (req, res, next) => {
       await user.save();
     }
 
-    next(); // proceed to the next middleware (like your "only vendor" check)
+    next();
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to upgrade user role" });
