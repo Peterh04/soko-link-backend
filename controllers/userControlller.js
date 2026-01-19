@@ -18,19 +18,75 @@ export const getUser = async (req, res) => {
   }
 };
 
+// export const updateUser = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     const { name, email } = req.body;
+
+//     const user = await User.findByPk(userId);
+//     if (!user) return res.status(404).json({ message: "User not found!" });
+
+//     const updateFields = {};
+//     if (name) updateFields.name = name;
+//     if (email) updateFields.email = email;
+
+//     if (req.file) {
+//       const upload = await new Promise((resolve, reject) => {
+//         const stream = cloudinary.uploader.upload_stream(
+//           { folder: "soko-link-users", resource_type: "image" },
+//           (error, result) => (error ? reject(error) : resolve(result)),
+//         );
+//         stream.end(req.file.buffer);
+//       });
+//       updateFields.profileImage = upload.secure_url;
+//     }
+
+//     if (Object.keys(updateFields).length === 0) {
+//       return res.status(400).json({ message: "No fields provided to update" });
+//     }
+
+//     const updatedUser = await user.update(updateFields);
+
+//     res.status(200).json({
+//       message: "Updated user successfully!",
+//       user: updatedUser,
+//     });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "Failed to update user!", error: error.message });
+//   }
+// };
+
 export const updateUser = async (req, res) => {
   try {
+    console.log("=== UPDATE USER CALLED ===");
+
     const userId = req.user.id;
+    console.log("User ID from token:", userId);
+
     const { name, email } = req.body;
+    console.log("Request body:", req.body);
 
     const user = await User.findByPk(userId);
+    console.log("User fetched from DB:", user ? user.toJSON() : null);
+
     if (!user) return res.status(404).json({ message: "User not found!" });
 
     const updateFields = {};
-    if (name) updateFields.name = name;
-    if (email) updateFields.email = email;
 
+    if (name) {
+      updateFields.name = name;
+      console.log("Name to update:", name);
+    }
+    if (email) {
+      updateFields.email = email;
+      console.log("Email to update:", email);
+    }
+
+    console.log("req.file before Cloudinary:", req.file);
     if (req.file) {
+      console.log("Uploading image to Cloudinary...");
       const upload = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           { folder: "soko-link-users", resource_type: "image" },
@@ -38,20 +94,26 @@ export const updateUser = async (req, res) => {
         );
         stream.end(req.file.buffer);
       });
+      console.log("Cloudinary upload result:", upload);
+
       updateFields.profileImage = upload.secure_url;
     }
 
     if (Object.keys(updateFields).length === 0) {
+      console.log("No fields provided to update");
       return res.status(400).json({ message: "No fields provided to update" });
     }
 
+    console.log("Fields to update:", updateFields);
     const updatedUser = await user.update(updateFields);
+    console.log("User after update:", updatedUser.toJSON());
 
     res.status(200).json({
       message: "Updated user successfully!",
       user: updatedUser,
     });
   } catch (error) {
+    console.error("ERROR IN UPDATE USER:", error);
     res
       .status(500)
       .json({ message: "Failed to update user!", error: error.message });
