@@ -65,26 +65,22 @@ export const updateUser = async (req, res) => {
     const userId = req.user.id;
     console.log("User ID from token:", userId);
 
-    const { name, email } = req.body;
     console.log("Request body:", req.body);
+    console.log("req.file before Cloudinary:", req.file);
 
     const user = await User.findByPk(userId);
-    console.log("User fetched from DB:", user ? user.toJSON() : null);
+    console.log("User fetched from DB:", user);
 
-    if (!user) return res.status(404).json({ message: "User not found!" });
+    if (!user) {
+      console.log("User not found in DB");
+      return res.status(404).json({ message: "User not found!" });
+    }
 
     const updateFields = {};
 
-    if (name) {
-      updateFields.name = name;
-      console.log("Name to update:", name);
-    }
-    if (email) {
-      updateFields.email = email;
-      console.log("Email to update:", email);
-    }
+    if (req.body.name) updateFields.name = req.body.name;
+    if (req.body.email) updateFields.email = req.body.email;
 
-    console.log("req.file before Cloudinary:", req.file);
     if (req.file) {
       console.log("Uploading image to Cloudinary...");
       const upload = await new Promise((resolve, reject) => {
@@ -95,25 +91,26 @@ export const updateUser = async (req, res) => {
         stream.end(req.file.buffer);
       });
       console.log("Cloudinary upload result:", upload);
-
       updateFields.profileImage = upload.secure_url;
     }
 
+    console.log("Fields prepared for update:", updateFields);
+
     if (Object.keys(updateFields).length === 0) {
-      console.log("No fields provided to update");
+      console.log("Nothing to update!");
       return res.status(400).json({ message: "No fields provided to update" });
     }
 
-    console.log("Fields to update:", updateFields);
     const updatedUser = await user.update(updateFields);
-    console.log("User after update:", updatedUser.toJSON());
+
+    console.log("User updated successfully:", updatedUser);
 
     res.status(200).json({
       message: "Updated user successfully!",
       user: updatedUser,
     });
   } catch (error) {
-    console.error("ERROR IN UPDATE USER:", error);
+    console.error("Error in updateUser:", error);
     res
       .status(500)
       .json({ message: "Failed to update user!", error: error.message });
