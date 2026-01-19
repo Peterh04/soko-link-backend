@@ -59,18 +59,14 @@ export const getUser = async (req, res) => {
 // };
 
 export const updateUser = async (req, res) => {
-  console.log("=== UPDATE USER CALLED ===");
-
   try {
+    console.log("=== UPDATE USER CALLED ===");
     const userId = req.user.id;
     console.log("User ID from token:", userId);
-
     console.log("Request body:", req.body);
     console.log("req.file:", req.file);
 
     const user = await User.findByPk(userId);
-    console.log("User fetched from DB:", user);
-
     if (!user) return res.status(404).json({ message: "User not found!" });
 
     const updateFields = {};
@@ -81,52 +77,33 @@ export const updateUser = async (req, res) => {
 
     if (req.file) {
       console.log("Uploading image to Cloudinary...");
-      try {
-        const upload = await new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: "soko-link-users", resource_type: "image" },
-            (error, result) => {
-              console.log("Cloudinary callback triggered");
-              if (error) {
-                console.log("Cloudinary error:", error);
-                reject(error);
-              } else {
-                console.log("Cloudinary result:", result);
-                resolve(result);
-              }
-            },
-          );
-          console.log("Ending Cloudinary stream...");
-          stream.end(req.file.buffer);
-        });
-        console.log("Cloudinary upload finished:", upload);
-        updateFields.profileImage = upload.secure_url;
-      } catch (cloudErr) {
-        console.log("Cloudinary upload failed:", cloudErr);
-        return res.status(500).json({
-          message: "Cloudinary upload failed",
-          error: cloudErr.message,
-        });
-      }
+      const upload = await cloudinary.uploader.upload(
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+        { folder: "soko-link-users" },
+      );
+      console.log("Cloudinary upload result:", upload);
+      updateFields.profileImage = upload.secure_url;
+      console.log("Profile image URL set to:", updateFields.profileImage);
     }
 
     if (Object.keys(updateFields).length === 0) {
-      console.log("No fields provided to update");
       return res.status(400).json({ message: "No fields provided to update" });
     }
 
     const updatedUser = await user.update(updateFields);
-    console.log("Updated user in DB:", updatedUser);
+
+    console.log("User updated successfully:", updatedUser);
 
     res.status(200).json({
       message: "Updated user successfully!",
       user: updatedUser,
     });
   } catch (error) {
-    console.log("Error in updateUser:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to update user!", error: error.message });
+    console.error("Failed to update user:", error);
+    res.status(500).json({
+      message: "Failed to update user!",
+      error: error.message,
+    });
   }
 };
 
