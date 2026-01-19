@@ -24,46 +24,32 @@ export const updateUser = async (req, res) => {
     const { name, email } = req.body;
 
     const user = await User.findByPk(userId);
-
     if (!user) return res.status(404).json({ message: "User not found!" });
 
     const updateFields = {};
-
     if (name) updateFields.name = name;
     if (email) updateFields.email = email;
 
     if (req.file) {
       const upload = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: "soko-link-users",
-            resource_type: "image",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
+          { folder: "soko-link-users", resource_type: "image" },
+          (error, result) => (error ? reject(error) : resolve(result)),
         );
         stream.end(req.file.buffer);
       });
-
       updateFields.profileImage = upload.secure_url;
     }
 
-    if (Object.keys(updateFields).length == 0) {
+    if (Object.keys(updateFields).length === 0) {
       return res.status(400).json({ message: "No fields provided to update" });
     }
-    await user.update(updateFields);
+
     const updatedUser = await user.update(updateFields);
+
     res.status(200).json({
       message: "Updated user successfully!",
-      user: {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        role: updatedUser.role,
-        profileImage: updatedUser.profileImage,
-      },
+      user: updatedUser,
     });
   } catch (error) {
     res
