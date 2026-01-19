@@ -33,9 +33,20 @@ export const updateUser = async (req, res) => {
     if (email) updateFields.email = email;
 
     if (req.file) {
-      const upload = await cloudinary.uploader.upload(req.file.path, {
-        folder: "soko-link-users",
+      const upload = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "soko-link-users",
+            resource_type: "image",
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          },
+        );
+        stream.end(req.file.buffer);
       });
+
       updateFields.profileImage = upload.secure_url;
     }
 
@@ -54,7 +65,9 @@ export const updateUser = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update user!" });
+    res
+      .status(500)
+      .json({ message: "Failed to update user!", error: error.message });
   }
 };
 
