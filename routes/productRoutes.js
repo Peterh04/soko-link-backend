@@ -21,7 +21,7 @@ router.post(
   upgradeToVendor,
   verifyIsVendor,
   upload.array("images", 10),
-  createProduct
+  createProduct,
 );
 router.get("/", getAllProducts);
 router.get("/:id", getProduct);
@@ -29,7 +29,7 @@ router.delete(
   "/vendor/deleteProduct",
   verifyToken,
   verifyIsVendor,
-  deleteProduct
+  deleteProduct,
 );
 
 router.get("/vendor/getProducts", verifyToken, getAllPersonalProducts);

@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import cloudinary from "../config/cloudinary.js";
 
 export const getUser = async (req, res) => {
   try {
@@ -32,11 +33,14 @@ export const updateUser = async (req, res) => {
     if (email) updateFields.email = email;
 
     if (req.file) {
-      updateFields.profileImage = `http://localhost:5001/uploads/${req.file.filename}`;
+      const upload = await cloudinary.uploader.upload(req.file.path, {
+        folder: "soko-link-users",
+      });
+      updateFields.profileImage = upload.secure_url;
     }
 
     if (Object.keys(updateFields).length == 0) {
-      return res.status(400).json({ message: "No  fields provided to update" });
+      return res.status(400).json({ message: "No fields provided to update" });
     }
     await user.update(updateFields);
     res.status(200).json({
@@ -62,7 +66,6 @@ export const updateUserPassword = async (req, res) => {
     const user = await User.findByPk(userId);
 
     if (!user) return res.status(404).json({ message: "User not found" });
-  
 
     const match = await bcrypt.compare(oldPassword, user.password);
 
@@ -70,7 +73,7 @@ export const updateUserPassword = async (req, res) => {
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
     await user.save();
-    
+
     res.status(200).json({ message: "Succesfully updated the password!" });
   } catch (error) {
     res.status(500).json({ message: "Could not update the user password" });
