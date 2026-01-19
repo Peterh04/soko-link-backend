@@ -80,7 +80,15 @@ export const getAllPersonalProducts = async (req, res) => {
 
 export const getProduct = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findByPk(req.params.id, {
+      include: [
+        {
+          model: "user",
+          as: "vendor",
+          attributes: ["id", "name", "profileImage"],
+        },
+      ],
+    });
     if (!product)
       return res.status(404).json({ message: "Product not found!" });
     res
