@@ -86,19 +86,23 @@ export const updateUser = async (req, res) => {
           const stream = cloudinary.uploader.upload_stream(
             { folder: "soko-link-users", resource_type: "image" },
             (error, result) => {
+              console.log("Cloudinary callback triggered");
               if (error) {
+                console.log("Cloudinary error:", error);
                 reject(error);
               } else {
+                console.log("Cloudinary result:", result);
                 resolve(result);
               }
             },
           );
+          console.log("Ending Cloudinary stream...");
           stream.end(req.file.buffer);
         });
-        console.log("Cloudinary upload result:", upload);
+        console.log("Cloudinary upload finished:", upload);
         updateFields.profileImage = upload.secure_url;
       } catch (cloudErr) {
-        console.log("Cloudinary upload error:", cloudErr);
+        console.log("Cloudinary upload failed:", cloudErr);
         return res.status(500).json({
           message: "Cloudinary upload failed",
           error: cloudErr.message,
