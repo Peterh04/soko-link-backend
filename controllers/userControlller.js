@@ -54,14 +54,15 @@ export const updateUser = async (req, res) => {
       return res.status(400).json({ message: "No fields provided to update" });
     }
     await user.update(updateFields);
+    const updatedUser = await user.update(updateFields);
     res.status(200).json({
       message: "Updated user successfully!",
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        profileImage: user.profileImage,
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        profileImage: updatedUser.profileImage,
       },
     });
   } catch (error) {
