@@ -34,7 +34,6 @@ app.use("/api/messages", messagesRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/mpesa", mpesaRoutes);
 
-
 sequelize.sync().then(() => console.log("✅ DB connected and synced"));
 
 /**

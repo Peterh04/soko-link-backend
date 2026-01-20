@@ -5,7 +5,15 @@ import User from "../models/User.js";
 
 export const createProduct = async (req, res) => {
   try {
-    const { title, description, price, location } = req.body;
+    const {
+      title,
+      description,
+      price,
+      location,
+      condition,
+      category,
+      vendor_phone,
+    } = req.body;
 
     let images = [];
 
@@ -24,6 +32,9 @@ export const createProduct = async (req, res) => {
       description,
       price,
       location,
+      category,
+      condition,
+      vendor_phone,
       images: images,
       vendorId: req.user.id,
     });

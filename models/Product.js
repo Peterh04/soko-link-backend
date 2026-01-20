@@ -22,6 +22,14 @@ const Product = sequelize.define("Product", {
     type: DataTypes.DECIMAL,
     allowNull: false,
   },
+  category: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  condition: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   currency: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -33,6 +41,10 @@ const Product = sequelize.define("Product", {
   },
   images: {
     type: DataTypes.JSON,
+    allowNull: false,
+  },
+  vendor_phone: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
   vendorId: {
