@@ -34,7 +34,9 @@ app.use("/api/messages", messagesRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/mpesa", mpesaRoutes);
 
-sequelize.sync().then(() => console.log("✅ DB connected and synced"));
+sequelize
+  .sync({ alter: true })
+  .then(() => console.log("✅ DB connected and synced"));
 
 /**
  * 🔐 ONE roomId rule everywhere
