@@ -1,4 +1,4 @@
-import { json, Op } from "sequelize";
+import { json, Op, Sequelize } from "sequelize";
 import cloudiary from "../config/cloudinary.js";
 import Product from "../models/Product.js";
 import User from "../models/User.js";
@@ -98,7 +98,17 @@ export const getProduct = async (req, res) => {
         {
           model: User,
           as: "vendor",
-          attributes: ["id", "name", "profileImage"],
+          attributes: [
+            "id",
+            "name",
+            "profileImage",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM "Products" AS p WHERE p."vendorId" ="vendor"."id")`,
+              ),
+              "totalProducts",
+            ],
+          ],
         },
       ],
     });
