@@ -33,7 +33,7 @@ router.delete(
 );
 
 router.get("/vendor/getProducts", verifyToken, getAllPersonalProducts);
-router.get("/vendor/:vendorId/getProducts", verifyToken, getAllVendorProducts);
+router.get("/vendor/:vendorId/getProducts", getAllVendorProducts);
 
 router.get("/search/:searchTerm", searchProduct);
 
