@@ -3,11 +3,27 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { json } from "sequelize";
+import validator from "validator";
 dotenv.config();
 
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400) / json({ message: "All fields are required" });
+    }
+
+    email = email.toLowerCase().trim();
+
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ message: "Email already registered" });
+    }
+
     const hash = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -38,7 +54,7 @@ export const login = async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     const refreshToken = jwt.sign(
@@ -48,7 +64,7 @@ export const login = async (req, res) => {
         role: user.role,
       },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     res.cookie("refreshToken", refreshToken, {
@@ -87,7 +103,7 @@ export const refreshToken = async (req, res) => {
           role: user.role,
         },
         process.env.JWT_SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: "1h" },
       );
       return res.json({ token });
     });
