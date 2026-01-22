@@ -91,9 +91,25 @@ export const login = async (req, res) => {
   }
 };
 
+export const logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+    res.status(200).json({ message: "successfully logged out" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error logging out", error: error.message });
+  }
+};
+
 export const refreshToken = async (req, res) => {
-  if (req.cookies?.jwt) {
-    const refreshToken = req.cookies.jwt;
+  if (req.cookies?.refreshToken) {
+    const refreshToken = req.cookies.refreshToken;
 
     jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, user) => {
       if (err)
