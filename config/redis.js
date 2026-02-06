@@ -1,14 +1,28 @@
+// config/redis.js
 import { createClient } from "redis";
 
-console.log("REDIS_URL:", process.env.REDIS_URL);
-const redisClient = createClient({
-  url: process.env.REDIS_URL,
-});
+const redisURL = process.env.REDIS_URL;
 
-redisClient.on("error", (err) => {
-  console.log("Redis Error:", err);
-});
+let redisClient = null;
 
-await redisClient.connect();
+if (!redisURL) {
+  console.log("⚠️ REDIS_URL not set. Redis will not connect.");
+} else {
+  redisClient = createClient({ url: redisURL });
+
+  redisClient.on("error", (err) => {
+    console.log("Redis Error:", err);
+  });
+
+  // Use async IIFE to allow await
+  (async () => {
+    try {
+      await redisClient.connect();
+      console.log("✅ Connected to Redis");
+    } catch (err) {
+      console.log("❌ Failed to connect to Redis:", err);
+    }
+  })();
+}
 
 export default redisClient;
