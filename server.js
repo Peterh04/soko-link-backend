@@ -3,8 +3,8 @@ dotenv.config();
 
 import express from "express";
 import sequelize from "./config/db.js";
-import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import messagesRoutes from "./routes/messagesRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import userWishlistRoutes from "./routes/userWishlistRoutes.js";
