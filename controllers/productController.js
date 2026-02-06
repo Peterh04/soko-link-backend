@@ -60,7 +60,14 @@ export const getAllProducts = async (req, res) => {
     }
 
     const products = await Product.findAll();
-    await redisClient.setEx("products", 300, JSON.stringify(products));
+
+    if (redisClient) {
+      try {
+        await redisClient.setEx("products", 300, JSON.stringify(products));
+      } catch (redisErr) {
+        console.log("Failed to cache products in Redis:", redisErr.message);
+      }
+    }
     res
       .status(200)
       .json({ message: "successfully fetching products", products });
