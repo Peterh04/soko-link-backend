@@ -2,6 +2,7 @@ import { json, Op, Sequelize } from "sequelize";
 import cloudiary from "../config/cloudinary.js";
 import Product from "../models/Product.js";
 import User from "../models/User.js";
+import redisClient from "../config/redis.js";
 
 export const createProduct = async (req, res) => {
   try {
@@ -46,7 +47,16 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
+    const cachedProducts = await redisClient.get("products");
+    if (cachedProducts) {
+      return res.status(200).json({
+        message: "successfully fetching products",
+        products: JSON.parse(cachedProducts),
+      });
+    }
+
     const products = await Product.findAll();
+    await redisClient.setEx("products", 300, JSON.stringify(products));
     res
       .status(200)
       .json({ message: "successfully fetching products", products });

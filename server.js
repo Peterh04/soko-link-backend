@@ -14,6 +14,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 import http from "http";
 import { Message } from "./models/Message.js";
+import "./config/redis.js";
 
 dotenv.config();
 const port = process.env.PORT || 8001;
