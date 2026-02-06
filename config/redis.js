@@ -1,4 +1,3 @@
-// config/redis.js
 import { createClient } from "redis";
 
 const redisURL = process.env.REDIS_URL;
@@ -14,7 +13,6 @@ if (!redisURL) {
     console.log("Redis Error:", err);
   });
 
-  // Use async IIFE to allow await
   (async () => {
     try {
       await redisClient.connect();

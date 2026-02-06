@@ -47,7 +47,11 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
-    const cachedProducts = await redisClient.get("products");
+    let cachedProducts = null;
+
+    if (redisClient) {
+      cachedProducts = await redisClient.get("products");
+    }
     if (cachedProducts) {
       return res.status(200).json({
         message: "successfully fetching products",
